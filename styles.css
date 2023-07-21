@@ -1,0 +1,11 @@
+:root {
+    /*  Fonts */
+    --f-hanwritten: 'Berkshire Swash', sans-serif;
+    --f-regular: 'Josefin Sans', sans-serif;
+
+    /* Colors */
+    --c-first: #283739; 
+    --c-second: #2c5d63; 
+    --c-third: #a2c11c; 
+    --c-fourth: #e0e0e0; 
+}
