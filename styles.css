@@ -9,3 +9,28 @@
     --c-third: #a2c11c; 
     --c-fourth: #e0e0e0; 
 }
+
+body {
+    background-color: var(--c-first);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#main-container {
+    width: 40vw;
+    height: 100vh;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3 1fr);
+    grid-template-rows: auto repeat(3 1fr);
+}
+
+h1 {
+    grid-column: 1 / -1;
+    grid-row: 1 / 2;
+    color: var(--c-third);
+    text-shadow: 0px 0px 5px var(--c-second);
+    font-family: var(--f-hanwritten);
+    text-align: center;
+    font-size: 5rem;
+}
