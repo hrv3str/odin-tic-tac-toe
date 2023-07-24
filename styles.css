@@ -27,7 +27,7 @@
 
 .blur {
     filter: blur(10px);
-    z-index: -4;
+    z-index: -5;
     pointer-events: none;
 }
 
@@ -124,6 +124,9 @@ h2 {
     align-items: center;
     justify-content: center;
     border-collapse: collapse;
+}
+
+.active {
     cursor: pointer;
 }
 
