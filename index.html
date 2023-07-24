@@ -9,19 +9,184 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Josefin+Sans&display=swap" rel="stylesheet">
+    <link rel="icon" href="./images/circle-double.svg" type="image/svg">
 </head>
 <body>
-    <div id="main-container">
-        <h1>Tic Tac Toe</h1>
-        <div id="cell-1-1"></div>
-        <div id="cell-1-2"></div>
-        <div id="cell-1-3"></div>
-        <div id="cell-2-1"></div>
-        <div id="cell-2-2"></div>
-        <div id="cell-2-3"></div>
-        <div id="cell-3-1"></div>
-        <div id="cell-3-2"></div>
-        <div id="cell-3-3"></div>
+    <div id="main-container"
+        class="blur">
+        <div id="header">
+            <h1>Tic Tac Toe</h1>
+            <button class="button"
+                id="start-button">
+                Start
+            </button>
+            <p class="no-visible"
+                id="announcer">
+            </p>
+        </div>
+        <div class="cell one">
+            <img src="./images/plus-outline.svg" 
+                alt="cross"
+                class="cross no-visible">
+            <img src="./images/circle-double.svg" 
+                alt="circle"
+                class="circle no-visible">
+        </div>
+        <div class="cell two">
+            <img src="./images/plus-outline.svg" 
+                alt="cross"
+                class="cross no-visible">
+            <img src="./images/circle-double.svg" 
+                alt="circle"
+                class="circle no-visible">
+        </div>
+        <div class="cell three">
+            <img src="./images/plus-outline.svg" 
+                alt="cross"
+                class="cross no-visible">
+            <img src="./images/circle-double.svg" 
+                alt="circle"
+                class="circle no-visible">
+        </div>
+        <div class="cell four">
+            <img src="./images/plus-outline.svg" 
+                alt="cross"
+                class="cross no-visible">
+            <img src="./images/circle-double.svg" 
+                alt="circle"
+                class="circle no-visible">
+        </div>
+        <div class="cell five">
+            <img src="./images/plus-outline.svg" 
+                alt="cross"
+                class="cross no-visible">
+            <img src="./images/circle-double.svg" 
+                alt="circle"
+                class="circle no-visible">
+        </div>
+        <div class="cell six">
+            <img src="./images/plus-outline.svg" 
+                alt="cross"
+                class="cross no-visible">
+            <img src="./images/circle-double.svg" 
+                alt="circle"
+                class="circle no-visible">
+        </div>
+        <div class="cell seven">
+            <img src="./images/plus-outline.svg" 
+                alt="cross"
+                class="cross no-visible">
+            <img src="./images/circle-double.svg" 
+                alt="circle"
+                class="circle no-visible">
+        </div>
+        <div class="cell eight">
+            <img src="./images/plus-outline.svg" 
+                alt="cross"
+                class="cross no-visible">
+            <img src="./images/circle-double.svg" 
+                alt="circle"
+                class="circle no-visible">
+        </div>
+        <div class="cell nine">
+            <img src="./images/plus-outline.svg" 
+                alt="cross"
+                class="cross no-visible">
+            <img src="./images/circle-double.svg" 
+                alt="circle"
+                class="circle no-visible">
+        </div>
+    </div>
+    <div id="form-container"
+        class="no-visible">
+        <form action="javascript:void(0);"
+            id="start"
+            class="plate">
+            <fieldset>
+                <h2>Player (<span class="player x"></span>)</h2>
+                <div class="player-type">
+                    <h3>Player Type:</h3>
+                    <label for="human-x"
+                        class="radio">
+                            Human
+                    </label>
+                    <input type="radio"
+                        id="human-x"
+                        name="playerTypeX"
+                        value="human"
+                        checked>
+                    <span class="checkmark type-human"></span>
+                    <label for="computer-x"
+                        class="radio">
+                            Computer
+                    </label>
+                    <input type="radio"
+                        id="computer-x"
+                        name="playerTypeX"
+                        value="computer">
+                    <span class="checkmark type-cpu"></span>
+                </div>
+                <label for="cpu-dif-x"
+                    class="no-visible">
+                        <h3>Computer Difficulty</h3>
+                </label>
+                <select name="cpuDifX" 
+                    id="cpu-dif-x"
+                    class="no-visible">
+                        <option value="easy">Easy</option>
+                        <option value="normal">Normal</option>
+                        <option value="impossible">Impossible</option>
+                </select>
+            </fieldset>
+            <fieldset>
+                <h2>Player (<span class="player o"></span>)</h2>
+                <div class="player-type">
+                    <h3>Player Type:</h3>
+                    <label for="human-o"
+                        class="radio">
+                            Human
+                    </label>
+                    <input type="radio"
+                        id="human-o"
+                        name="playerTypeO"
+                        value="human"
+                        checked>
+                    <span class="checkmark type-human"></span>
+                    <label for="computer-o"
+                        class="radio">
+                            Computer
+                    </label>
+                    <input type="radio"
+                        id="computer-o"
+                        name="playerTypeO"
+                        value="computer">
+                    <span class="checkmark type-cpu"></span>
+                </div>
+                <label for="cpu-dif-o"
+                    class="no-visible">
+                        <h3>Computer Difficulty</h3>
+                </label>
+                <select name="cpuDifO"
+                    id="cpu-dif-o"
+                    class="no-visible">
+                        <option value="easy">Easy</option>
+                        <option value="normal">Normal</option>
+                        <option value="impossible">Impossible</option>
+                </select>
+            </fieldset>
+            <button type="submit"
+                class="button">
+                    Start Game
+            </button>
+        </form>
+    </div>
+    <div id="end-screen"
+        class="no-visible">
+        <h1 id="end-message"></h1>
+        <button class="button"
+            id="ret-button">
+                Try again
+        </button>
     </div>
 </body>
 </html>
