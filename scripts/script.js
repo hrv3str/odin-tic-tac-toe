@@ -4,16 +4,6 @@ const gameMain = document.getElementById ('main-container');
 // game 'start' button
 const startButton = document.getElementById('start-button');
 
-// game text announser
-const announcer = document.getElementById('announcer');
-
-// nodelist for all 'x'
-const xNodeList = document.getElementsByClassName('cross');
-// nodelist for all 'o'
-const oNodeList = document.getElementsByClassName('circle');
-// nodelist for all cells
-const cellNodeList = document.getElementsByClassName('cell');
-
 // screen for collecting form
 const formScreen = document.getElementById('form-container');
 // collecting form
@@ -26,13 +16,6 @@ const endMessage = document.getElementById('end-message');
 // replay button
 const reButton = document.getElementById('ret-button');
 
-// function for collecting player data
-
-// 1.Pushing the 'start' button will call the form to collect player data
-
-// 2.Script will create player objects according to the data
-
-// 3.Script initiates the array, containing game field data, hides the start button and gives cells class '.active'
 
 // 4.Turn 'x', player annonsed, array checked, gamefield refreshed, waiting for player input, input taken, array modified, array cheked for winning conditions
 
@@ -53,12 +36,6 @@ const form = (() => {
     const formSelectLabelO = document.querySelector('label[for="cpu-dif-o"]');
 
     const updateRadios = () => {
-        const show = (item) => {
-            item.classList.remove('no-visible')
-        };
-        const hide = (item) => {
-            item.classList.add('no-visible')
-        };
         const check = (item) => {
             item.classList.add('radio-checked')
         };
@@ -74,20 +51,20 @@ const form = (() => {
                 check(label);
                 switch(radio.id) {
                     case 'human-x':
-                        hide(formSelectLabelX);
-                        hide(formSelectInputX);
+                        display.hide(formSelectLabelX);
+                        display.hide(formSelectInputX);
                         break;
                     case 'computer-x':
-                        show(formSelectLabelX);
-                        show(formSelectInputX);
+                        display.show(formSelectLabelX);
+                        display.show(formSelectInputX);
                         break;
                     case 'human-o':
-                        hide(formSelectLabelO);
-                        hide(formSelectInputO);
+                        display.hide(formSelectLabelO);
+                        display.hide(formSelectInputO);
                         break;
                     case 'computer-o':
-                        show(formSelectInputO);
-                        show(formSelectLabelO);
+                        display.show(formSelectInputO);
+                        display.show(formSelectLabelO);
                         break;
                 };
             } else {
@@ -118,32 +95,117 @@ const form = (() => {
         };
     };
   
-    // Public methods
-    return {
-      listenRadios: listenRadios,
-      unListenRadios: unListenRadios
-    };
+    return {listenRadios, unListenRadios};
 })();
 
-const toggleVisibility = (item) => {
-    item.classList.toggle('no-visible');
-};
+const display = (() => {
+    // game text announser
+    const announcer = document.getElementById('announcer');
+    // nodelist for all 'x'
+    const xNodeList = document.getElementsByClassName('cross');
+    // nodelist for all 'o'
+    const oNodeList = document.getElementsByClassName('circle');
+    // nodelist for all cells
+    const cellNodeList = document.getElementsByClassName('cell');
 
-const toggleBlur = () => {
-    gameMain.classList.toggle('blur');
-}
+    const show = (item) => {
+        item.classList.remove('no-visible')
+    };
+    const hide = (item) => {
+        item.classList.add('no-visible')
+    };
+    const toggleBlur = () => {
+        gameMain.classList.toggle('blur');
+    };
+    const activate = (item) => {
+        item.classList.add('active')
+    }
+    const deActivate = (item) => {
+        item.classList.remove('active');
+    }
+
+    const refresh = () => {
+        gameplay.gameArr.forEach((arg) => {
+                let i = gameplay.gameArr.indexOf(arg);
+                let cross = xNodeList[i];
+                let circle = oNodeList[i];
+                let cell = cellNodeList[i];
+                switch (arg) {
+                    case 'x':
+                        show(cross);
+                        deActivate(cell);
+                        break;
+                    case 'o':
+                        show(circle);
+                        deActivate(cell);
+                        break;
+                    default:
+                        hide(circle);
+                        hide(cross);
+                        activate(cell);
+                }
+        });
+    };
+
+    return {show, hide, toggleBlur, refresh};
+})();
+
+const gameplay = (() => {
+
+    const Player = (type, difficulty) => {
+        const getType = () => type;
+        const getDifficulty = () => difficulty;
+    
+        return {getMark, getType, getDifficulty};
+    };
+
+    const gatherForm = () => {
+        return new Promise(function(resolve, reject){
+            playerForm.addEventListener('submit',(event) =>{
+                event.preventDefault();
+                let typeX = playerForm.elements.playerTypeX.value;
+                let diffX = playerForm.elements.cpuDifX.value;
+                
+                let typeO = playerForm.elements.playerTypeO.value;
+                let diffO = playerForm.elements.cpuDifO.value;
+                
+                if (playerTypeX.trim() === '' || playerTypeO.trim() === '') {
+                    reject('Please fill in the form');
+                    return;
+                }
+
+                const PlayerX = Player(typeX, diffX);
+                const PlayerO = Player(typeO, diffO);
+                playerForm.reset();
+                setTimeout(() => {
+                    resolve('Form submitted succesfully');
+                    return PlayerX, PlayerO;
+                }, 2000);
+            });
+        });
+    }
+
+    const gameArr = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
 
 
-const startGame = () => {
-    toggleVisibility(startButton);
-    toggleVisibility(announcer);
-    toggleBlur();
-    toggleVisibility(formScreen);
+
+    return {gatherForm, gameArr}
+})();
+
+const runGame = () => {
+    display.hide(startButton);
+    display.show(announcer);
+    display.toggleBlur();
+    display.show(formScreen);
     form.listenRadios();
+    gameplay.gatherForm();
+    form.unListenRadios();
+    display.hide(formScreen);
+    display.toggleBlur();
   };
 
 
-startButton.addEventListener('click', startGame);
+startButton.addEventListener('click', runGame);
 
 
   
