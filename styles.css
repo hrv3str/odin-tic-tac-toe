@@ -230,7 +230,8 @@ fieldset {
     font-family: var(--f-regular);
     color: var(--c-fourth);
     text-shadow: 0px 0px 2px var(--c-second);
-    display:grid
+    display:grid;
+    grid-template-rows: 1fr 2fr 2rem 2rem;
 }
 
 .player {
@@ -287,16 +288,21 @@ input[type="radio"] {
 
 .radio:hover {
     cursor: pointer;
-    color: var(--c-third);
+    text-shadow:0px 0px 5px var(--c-third);
 }
 
 .player-type input:checked + .type-human {
-    content: url(./images/human-greeting-variant.svg);
+    content: url(./images/face-man.svg);
 
 }
 
 .player-type input:checked + .type-cpu {
-    content: url(./images/laptop.svg);
+    content: url(./images/robot.svg);
+}
+
+.radio-checked {
+    color: var(--c-third);
+    text-shadow: 0px 0px 5px var(--c-second);
 }
 
 select {
