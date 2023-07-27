@@ -38,6 +38,13 @@
     background-color: var(--c-first-tran);
 }
 
+.message-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 .button {
     border: var(--b-button);
     border-radius: 0.9rem;
@@ -106,6 +113,10 @@ h1 {
 }
 
 #announcer {
+    height: 4rem;
+}
+
+#announcer h2 {
     font-size: 3rem;
     font-family: var(--f-regular);
     color: var(--c-fourth);
@@ -248,7 +259,7 @@ fieldset {
 
 .o {
     content: url(./images/circle-double.svg);
-    height: 0.8rem;
+    height: 0.8em;
 }
 
 .player-type {
@@ -337,6 +348,6 @@ button[type="submit"] {
     justify-content: flex-start;
 }
 
-#end-message {
+#end-message h1 {
     text-shadow: 0px 0px 10px var(--c-first);
 }

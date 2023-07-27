@@ -20,9 +20,17 @@
                 id="start-button">
                 Start
             </button>
-            <p class="no-visible"
+            <div class="message-container no-visible"
                 id="announcer">
-            </p>
+                <h2 id="turn-mes-x"
+                    class="no-visible">
+                        Player <span class="player x"></span> turn
+                </h2>
+                <h2 id="turn-mes-o"
+                    class="no-visible">
+                        Player <span class="player o"></span> turn
+                </h2>
+        </div>
         </div>
         <div class="cell one">
             <img src="./images/plus-outline.svg" 
@@ -182,7 +190,29 @@
     </div>
     <div id="end-screen"
         class="no-visible">
-        <h1 id="end-message"></h1>
+        <div id="end-message"
+            class="message-container">
+            <h1 id="win-message-x"
+                class="no-visible">
+                Player <span class="player x"></span> wins!
+            </h1>
+            <h1 id="win-message-o"
+                class="no-visible">
+                Player <span class="player o"></span> wins!
+            </h1>
+            <h1 id="lost-message-player"
+                class="no-visible">
+                Sorry you've lost.
+            </h1>
+            <h1 id="win-message-player"
+                class="no-visible">
+                Congratulations, you're a winner!
+            </h1>
+            <h1 id="draw-message"
+                class="no-visible">
+                It's a draw.
+            </h1>
+        </div>
         <button class="button"
             id="ret-button">
                 Try again

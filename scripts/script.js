@@ -74,7 +74,6 @@ const form = (() => {
     }
 
     const clickRadios = (event) => {
-        console.log(event)
         event.target.click();
         updateRadios()
     }
@@ -83,7 +82,6 @@ const form = (() => {
         for(i = 0; i < formRadioLabels.length; i++) {
             let radio = formRadioLabels[i];
             radio.addEventListener('click', clickRadios);
-            console.log(radio);
         };
     };
 
@@ -91,7 +89,6 @@ const form = (() => {
         for(i = 0; i < formRadioLabels.length; i++) {
             let radio = formRadioLabels[i];
             radio.removeEventListener('click', clickRadios);
-            console.log(radio);
         };
     };
   
@@ -107,6 +104,20 @@ const display = (() => {
     const oNodeList = document.getElementsByClassName('circle');
     // nodelist for all cells
     const cellNodeList = document.getElementsByClassName('cell');
+    // x player turn announcer
+    const turnMesX = document.getElementById("turn-mes-x");
+    // o player turn announcer
+    const turnMesO = document.getElementById("turn-mes-o");
+    // endgame message player 'x' wins
+    const winMesX = document.getElementById("win-message-x");
+    // endgame message player 'o' wins
+    const winMesO = document.getElementById("win-message-o");
+    //  endgame message for human player lost
+    const lostMesPlayer = document.getElementById("lost-message-player");
+    // endgame message for human player wins
+    const winMesPlayer = document.getElementById("win-message-player");
+    // endgame message for a draw
+    const drawMes = document.getElementById("draw-message");
 
     const show = (item) => {
         item.classList.remove('no-visible')
@@ -124,9 +135,55 @@ const display = (() => {
         item.classList.remove('active');
     }
 
+    const turnAnnounce = (mark) => {
+        switch(mark) {
+            case 'x':
+                show(turnMesX);
+                hide(turnMesO);
+                break;
+            case 'o':
+                show(turnMesO);
+                hide(turnMesX);
+                break;
+            default:
+                hide(turnMesX);
+                hide(turnMesO);
+                break;
+        };
+    };
+
+    const showEndMes = (mark, playerType) => {
+        toggleBlur();
+
+        switch(mark) {
+            case 'x':
+                show(winMesX);
+                break;
+            case 'o':
+                show(winMesO);
+                break;
+        }
+
+        switch(playerType) {
+            case 'human':
+                show(winMesPlayer);
+                break;
+            case 'computer':
+                show(lostMesPlayer);
+                break;
+        }
+
+    };
+
+    const showEndMesDraw = () => {
+        toggleBlur();
+        show(drawMes);
+    }
+
     const refresh = () => {
-        gameplay.gameArr.forEach((arg) => {
-                let i = gameplay.gameArr.indexOf(arg);
+        let gameArr = gameplay.gameArr;
+        for(let i = 0; i < gameArr.length; i++) {
+                let arg = gameArr[i];
                 let cross = xNodeList[i];
                 let circle = oNodeList[i];
                 let cell = cellNodeList[i];
@@ -144,23 +201,38 @@ const display = (() => {
                         hide(cross);
                         activate(cell);
                 }
-        });
+        };
     };
 
-    return {show, hide, toggleBlur, refresh};
+    return {
+        show, 
+        hide, 
+        toggleBlur, 
+        refresh, 
+        deActivate,
+        turnAnnounce,
+        showEndMes,
+        showEndMesDraw,
+        cellNodeList
+    };
 })();
 
 const gameplay = (() => {
+    const gameArr = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+    let playerX;
+    let playerO;
+    const cellNodeList = Array.from(display.cellNodeList);
 
-    const Player = (type, difficulty) => {
+    const Player = (mark, type, difficulty) => {
         const getType = () => type;
         const getDifficulty = () => difficulty;
+        const getMark = () => mark;
     
         return {getMark, getType, getDifficulty};
     };
 
     const gatherForm = () => {
-        return new Promise(function(resolve, reject){
+        return new Promise((resolve, reject) => {
             playerForm.addEventListener('submit',(event) =>{
                 event.preventDefault();
                 let typeX = playerForm.elements.playerTypeX.value;
@@ -169,44 +241,129 @@ const gameplay = (() => {
                 let typeO = playerForm.elements.playerTypeO.value;
                 let diffO = playerForm.elements.cpuDifO.value;
                 
-                if (playerTypeX.trim() === '' || playerTypeO.trim() === '') {
+                if (typeX.trim() === '' || typeO.trim() === '') {
                     reject('Please fill in the form');
                     return;
                 }
 
-                const PlayerX = Player(typeX, diffX);
-                const PlayerO = Player(typeO, diffO);
+                playerX = Player('x', typeX, diffX);
+                playerO = Player('o', typeO, diffO);
+                form.unListenRadios();
+                display.hide(formScreen);
+                display.toggleBlur();
                 playerForm.reset();
                 setTimeout(() => {
-                    resolve('Form submitted succesfully');
-                    return PlayerX, PlayerO;
-                }, 2000);
+                    resolve({ playerX, playerO });
+                }, 500);
             });
         });
+    };
+
+    const playerInput = (mark, playerType) => {
+        return new Promise((resolve, reject) => {
+            const clickHandler = (event) => {
+                let cell = event.target;
+                let i = cellNodeList.indexOf(cell);
+    
+                if (i === -1) {
+                    reject('Invalid cell clicked');
+                    return;
+                }
+    
+                cell.removeEventListener('click', clickHandler);
+    
+                gameArr[i] = mark;
+                display.deActivate(cell);
+    
+                setTimeout(() => {
+                    resolve('Cell clicked');
+                }, 100);
+            };
+    
+            if (playerType === 'human') {
+                for (let i = 0; i < cellNodeList.length; i++) {
+                    cellNodeList[i].addEventListener('click', clickHandler);
+                };
+            } else if (playerType === 'cpu') {
+                cpuMove(mark);
+
+                setTimeout(() => {
+                    resolve('CPU move');
+                }, 500);
+            }
+        });
+    };
+
+    const checkWinningConditions = (mark) => {
+        // Winning patterns to check
+        const winningPatterns = [
+            [0, 1, 2], // Top row
+            [3, 4, 5], // Middle row
+            [6, 7, 8], // Bottom row
+            [0, 3, 6], // Left column
+            [1, 4, 7], // Middle column
+            [2, 5, 8], // Right column
+            [0, 4, 8], // Diagonal from top-left to bottom-right
+            [2, 4, 6], // Diagonal from top-right to bottom-left
+        ];
+    
+        // Check each winning pattern
+        for (const pattern of winningPatterns) {
+            const [a, b, c] = pattern;
+            if (gameArr[a] === mark && gameArr[b] === mark && gameArr[c] === mark) {
+                return true;
+            }
+        }
+    
+        return false;
+    };
+
+    const handleTurn = (currentPlayer) => {
+        const mark = currentPlayer.getMark();
+        const playerType = currentPlayer.getType();
+
+        display.turnAnnounce(mark);
+        playerInput(mark, playerType)
+            .then(() => {
+                display.refresh();
+
+                if (checkWinningConditions(mark)) {
+                    display.showEndMes(mark, playerType);
+                    display.show(endScreen);
+                    return;
+                } else if (gameArr.indexOf(' ') === -1) {
+                    display.showEndMesDraw();
+                    display.show(endScreen);
+                    return;
+                } else {
+                    currentPlayer = currentPlayer === playerX ? playerO : playerX;
+
+                    handleTurn(currentPlayer);
+                }
+            });
+    };
+
+    const runGame = () => {
+        display.refresh();
+        display.hide(startButton);
+        display.show(announcer);
+        display.toggleBlur();
+        display.show(formScreen);
+        form.listenRadios();
+        gatherForm()
+            .then(({playerX, playerO}) => {
+                handleTurn(playerX);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
+    return {
+        gameArr,
+        runGame
     }
-
-    const gameArr = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
-
-
-
-    return {gatherForm, gameArr}
 })();
 
-const runGame = () => {
-    display.hide(startButton);
-    display.show(announcer);
-    display.toggleBlur();
-    display.show(formScreen);
-    form.listenRadios();
-    gameplay.gatherForm();
-    form.unListenRadios();
-    display.hide(formScreen);
-    display.toggleBlur();
-  };
-
-
-startButton.addEventListener('click', runGame);
-
-
-  
-  
+startButton.addEventListener('click', gameplay.runGame);
+ 
