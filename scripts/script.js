@@ -1,31 +1,15 @@
 // main game container to apply blur
 const gameMain = document.getElementById ('main-container');
-
 // game 'start' button
 const startButton = document.getElementById('start-button');
-
 // screen for collecting form
 const formScreen = document.getElementById('form-container');
 // collecting form
 const playerForm = document.getElementById('start');
-
 // game end message screen
 const endScreen = document.getElementById('end-screen');
-// game end message
-const endMessage = document.getElementById('end-message');
 // replay button
 const reButton = document.getElementById('ret-button');
-
-
-// 4.Turn 'x', player annonsed, array checked, gamefield refreshed, waiting for player input, input taken, array modified, array cheked for winning conditions
-
-// 5.Turn 'o', player annonsed, array checked, gamefield refreshed, waiting for player input, input taken, array modified, array cheked for winning conditions
-
-// 6.Repeat turns until array matches winning conditions, stop game, announce the result
-
-// 7.'Try again' button reloads page
-
-// Script to maintain the form
 
 const form = (() => {
     const formRadioInputs = document.querySelectorAll('input[type="radio"]');
@@ -181,9 +165,9 @@ const display = (() => {
     }
 
     const refresh = () => {
-        let gameArr = gameplay.gameArr;
-        for(let i = 0; i < gameArr.length; i++) {
-                let arg = gameArr[i];
+        let board = gameplay.board;
+        for(let i = 0; i < board.length; i++) {
+                let arg = board[i];
                 let cross = xNodeList[i];
                 let circle = oNodeList[i];
                 let cell = cellNodeList[i];
@@ -218,7 +202,7 @@ const display = (() => {
 })();
 
 const gameplay = (() => {
-    const gameArr = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+    const board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
     let playerX;
     let playerO;
     const cellNodeList = Array.from(display.cellNodeList);
@@ -259,20 +243,113 @@ const gameplay = (() => {
         });
     };
 
-    const playerInput = (mark, playerType) => {
+    const getEmptyCells = (board) => {
+        return board.reduce((indexes, cell, index) => {
+          if (cell === ' ') {
+            indexes.push(index);
+          }
+          return indexes;
+        }, []);
+      };
+      
+    let wasSmart = true;
+
+    const computerInput = (mark, cpuDif, playerType) => {
+        console.log("difficulty is" + cpuDif);
+        return new Promise((resolve, reject) => {
+            if(playerType === 'human') {
+                resolve('Human move');
+            }
+            const emptyCells = getEmptyCells(board);
+
+            const makeMove = (index, mark, arr) => {
+                if (arr[index] === ' ') {
+                arr[index] = mark;
+                return true;
+                }
+                return false;
+            };
+
+            const moveSilly = () => {
+                console.log('make silly move');
+                return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            }
+
+            const moveSmart = () => {
+                for (let i = 0; i < emptyCells.length; i++) {
+                    let boardCopy = [...board];
+                    let index = emptyCells[i];
+                    if (makeMove(index, mark, boardCopy)) {
+                        if (checkWinningConditions(boardCopy, mark)) {
+                            console.log('found my smart')
+                            return index;
+                        } else {
+                            console.log('not found my smart');
+                        }
+                    }
+                }
+
+                const opponentMark = mark === 'x' ? 'o' : 'x';
+
+                for (let i = 0; i < emptyCells.length; i++) {
+                    let boardCopy = [...board];
+                    let index = emptyCells[i];
+                    if (makeMove(index, opponentMark, boardCopy)) {
+                        if (checkWinningConditions(boardCopy, opponentMark)) {
+                            console.log('found opponents smart')
+                            return index;
+                        } else {
+                            console.log('not found opponents smart')
+                        }
+                    }
+                }
+
+                return moveSilly();
+            };
+
+            switch (cpuDif) {
+                case 'easy':
+                    index = moveSilly();
+                    break;
+                case 'normal':
+                    if (wasSmart === true) {
+                        wasSmart = false;
+                        console.log('switch to silly')
+                        index = moveSilly();
+                    } else {
+                        wasSmart = true;
+                        console.log('switch to smart')
+                        index = moveSmart()
+                    };
+                    break;
+                case 'impossible':
+                    index = moveSmart();
+                    break;
+            }
+            setTimeout(() => {
+                makeMove(index, mark, board);
+                let cell = cellNodeList[index];
+                display.deActivate(cell);
+                console.log ({mark, index, cell})
+                resolve('computer move')
+            }, 1500);
+        });
+    };
+
+    const humanInput = (mark, playerType) => {
         return new Promise((resolve, reject) => {
             const clickHandler = (event) => {
                 let cell = event.target;
                 let i = cellNodeList.indexOf(cell);
     
                 if (i === -1) {
-                    reject('Invalid cell clicked');
-                    return;
+                    reject(clickHandler());
+                    return Promise;
                 }
     
                 cell.removeEventListener('click', clickHandler);
     
-                gameArr[i] = mark;
+                board[i] = mark;
                 display.deActivate(cell);
     
                 setTimeout(() => {
@@ -284,17 +361,13 @@ const gameplay = (() => {
                 for (let i = 0; i < cellNodeList.length; i++) {
                     cellNodeList[i].addEventListener('click', clickHandler);
                 };
-            } else if (playerType === 'cpu') {
-                cpuMove(mark);
-
-                setTimeout(() => {
-                    resolve('CPU move');
-                }, 500);
+            } else if (playerType === 'computer') {
+                resolve('CPU move');
             }
         });
     };
 
-    const checkWinningConditions = (mark) => {
+    const checkWinningConditions = (arr, mark) => {
         // Winning patterns to check
         const winningPatterns = [
             [0, 1, 2], // Top row
@@ -310,7 +383,7 @@ const gameplay = (() => {
         // Check each winning pattern
         for (const pattern of winningPatterns) {
             const [a, b, c] = pattern;
-            if (gameArr[a] === mark && gameArr[b] === mark && gameArr[c] === mark) {
+            if (arr[a] === mark && arr[b] === mark && arr[c] === mark) {
                 return true;
             }
         }
@@ -318,29 +391,56 @@ const gameplay = (() => {
         return false;
     };
 
+    const endGame = () => {
+        display.show(endScreen);
+        reButton.addEventListener('click', () => {
+            location.reload();
+        });
+    }
+
     const handleTurn = (currentPlayer) => {
         const mark = currentPlayer.getMark();
         const playerType = currentPlayer.getType();
+        const cpuDif = currentPlayer.getDifficulty();
+
+        console.log('start turn')
 
         display.turnAnnounce(mark);
-        playerInput(mark, playerType)
-            .then(() => {
-                display.refresh();
 
-                if (checkWinningConditions(mark)) {
-                    display.showEndMes(mark, playerType);
-                    display.show(endScreen);
-                    return;
-                } else if (gameArr.indexOf(' ') === -1) {
-                    display.showEndMesDraw();
-                    display.show(endScreen);
-                    return;
-                } else {
-                    currentPlayer = currentPlayer === playerX ? playerO : playerX;
+        const endTurn = () => {
+            display.refresh();
 
-                    handleTurn(currentPlayer);
-                }
-            });
+            if (checkWinningConditions(board, mark)) {
+                display.showEndMes(mark, playerType);
+                endGame();
+                return;
+            } else if (board.indexOf(' ') === -1) {
+                display.showEndMesDraw();
+                endGame();
+                return;
+            } else {
+                console.log('going to next turn')
+                currentPlayer = currentPlayer === playerX ? playerO : playerX;
+                console.log('player swiched to' + {currentPlayer})
+                handleTurn(currentPlayer);
+            }
+        }
+
+        const handleHumanInput = () => {
+            return humanInput(mark, playerType);
+        };
+    
+        const handleComputerInput = () => {
+            return computerInput(mark, cpuDif, playerType);
+        };
+    
+        handleHumanInput()
+        .then(() => {
+            if (playerType === 'computer') {
+                return handleComputerInput();
+            }
+        })
+        .then(() => endTurn());     
     };
 
     const runGame = () => {
@@ -351,16 +451,13 @@ const gameplay = (() => {
         display.show(formScreen);
         form.listenRadios();
         gatherForm()
-            .then(({playerX, playerO}) => {
+            .then(() => {
                 handleTurn(playerX);
             })
-            .catch((error) => {
-                console.log(error);
-            });
     };
 
     return {
-        gameArr,
+        board,
         runGame
     }
 })();
