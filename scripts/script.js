@@ -273,9 +273,6 @@ const gameplay = (() => {
           return indexes;
         }, []);
       };
-    
-    // value for normal difficulty to switch moves type
-    let wasSmart = true;
 
     // function handling computer input
     const computerInput = (mark, cpuDif, playerType) => {
@@ -336,17 +333,6 @@ const gameplay = (() => {
                     index = moveSilly();
                     break;
                 case 'normal':
-                    if (wasSmart === true) {
-                        wasSmart = false;
-                        console.log('switch to silly')
-                        index = moveSilly();
-                    } else {
-                        wasSmart = true;
-                        console.log('switch to smart')
-                        index = moveSmart()
-                    };
-                    break;
-                case 'impossible':
                     index = moveSmart();
                     break;
             }
