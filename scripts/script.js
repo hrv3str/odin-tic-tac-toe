@@ -10,6 +10,10 @@ const playerForm = document.getElementById('start');
 const endScreen = document.getElementById('end-screen');
 // replay button
 const reButton = document.getElementById('ret-button');
+// monitoring if it is computer turn
+let isComputerTurn = false;
+// flag to monitor human inputs
+let hasHumanMadeMove = false;
 
 // Function handling form items display and reaction
 const form = (() => {
@@ -276,7 +280,7 @@ const gameplay = (() => {
 
     // function handling computer input
     const computerInput = (mark, cpuDif, playerType) => {
-        console.log("difficulty is" + cpuDif);
+        isComputerTurn = true;
         return new Promise((resolve, reject) => {
             if(playerType === 'human') {
                 resolve('Human move');
@@ -340,7 +344,7 @@ const gameplay = (() => {
                 makeMove(index, mark, board);
                 let cell = cellNodeList[index];
                 display.deActivate(cell);
-                console.log ({mark, index, cell})
+                isComputerTurn = false;
                 resolve('computer move')
             }, 1500);
         });
@@ -348,6 +352,9 @@ const gameplay = (() => {
 
     // function to handle human input
     const humanInput = (mark, playerType) => {
+        if (isComputerTurn || hasHumanMadeMove) {
+            return;
+        }
         return new Promise((resolve, reject) => {
             const clickHandler = (event) => {
                 let cell = event.target;
@@ -362,10 +369,12 @@ const gameplay = (() => {
     
                 board[i] = mark;
                 display.deActivate(cell);
+                hasHumanMadeMove = true;
     
                 setTimeout(() => {
+                    hasHumanMadeMove = false;
                     resolve('Cell clicked');
-                }, 100);
+                }, 10);
             };
     
             if (playerType === 'human') {
