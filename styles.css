@@ -400,3 +400,42 @@ button[type="submit"] {
     z-index: -10;
     pointer-events: none;
 }
+
+@media only screen and (max-width: 767px) {
+    :root {
+        --cell-side: 27vw;
+    }
+
+    h1 {
+        font-size: 3rem;
+    }
+
+    #header {
+        margin-bottom: 2rem;
+    }
+
+    #start-button {
+        font-size: 3rem;
+        position: absolute;
+        bottom: 7%;
+        left: center;
+    }
+    
+    #footer{
+        display: none;
+    }
+
+    #start {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        width: 95%;
+        margin: 0 auto;
+    }
+
+    fieldset {
+        padding: 0;
+        height: 44vh;
+    }
+}
