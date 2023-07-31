@@ -11,14 +11,22 @@ const endScreen = document.getElementById('end-screen');
 // replay button
 const reButton = document.getElementById('ret-button');
 
+// Function handling form items display and reaction
 const form = (() => {
+    // nodelist of radio inputs
     const formRadioInputs = document.querySelectorAll('input[type="radio"]');
+    // nodelist for radio labels
     const formRadioLabels = document.querySelectorAll('.radio')
+    // select input for player 'x'
     const formSelectInputX = document.getElementById('cpu-dif-x');
+    //  select input label for player 'x'
     const formSelectLabelX = document.querySelector('label[for="cpu-dif-x"]');
+    // select input for player 'o'
     const formSelectInputO = document.getElementById('cpu-dif-o');
+    //  select input label for player 'o'
     const formSelectLabelO = document.querySelector('label[for="cpu-dif-o"]');
 
+    // Update radio labels according to their values
     const updateRadios = () => {
         const check = (item) => {
             item.classList.add('radio-checked')
@@ -57,11 +65,13 @@ const form = (() => {
         }; 
     }
 
+    // landing double click for proper updates
     const clickRadios = (event) => {
         event.target.click();
         updateRadios()
     }
-  
+    
+    // adding event listeners for radios
     const listenRadios = () => {
         for(i = 0; i < formRadioLabels.length; i++) {
             let radio = formRadioLabels[i];
@@ -69,16 +79,19 @@ const form = (() => {
         };
     };
 
+    // removing event listeners
     const unListenRadios = () => {
         for(i = 0; i < formRadioLabels.length; i++) {
             let radio = formRadioLabels[i];
             radio.removeEventListener('click', clickRadios);
         };
     };
-  
+    
+    // puplic methods
     return {listenRadios, unListenRadios};
 })();
 
+// function to handle game display
 const display = (() => {
     // game text announser
     const announcer = document.getElementById('announcer');
@@ -188,6 +201,7 @@ const display = (() => {
         };
     };
 
+    // public methods
     return {
         show, 
         hide, 
@@ -201,12 +215,18 @@ const display = (() => {
     };
 })();
 
+// function to handle gameplay
 const gameplay = (() => {
+    // array containing game board info
     const board = [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '];
+    // player 'x' initialisation
     let playerX;
+    // player 'o' initialisation
     let playerO;
+    // convertiong nodelist to array to use in function
     const cellNodeList = Array.from(display.cellNodeList);
 
+    // player factory
     const Player = (mark, type, difficulty) => {
         const getType = () => type;
         const getDifficulty = () => difficulty;
@@ -215,6 +235,7 @@ const gameplay = (() => {
         return {getMark, getType, getDifficulty};
     };
 
+    // function to gather info for players
     const gatherForm = () => {
         return new Promise((resolve, reject) => {
             playerForm.addEventListener('submit',(event) =>{
@@ -243,6 +264,7 @@ const gameplay = (() => {
         });
     };
 
+    // get info about empty cells on board
     const getEmptyCells = (board) => {
         return board.reduce((indexes, cell, index) => {
           if (cell === ' ') {
@@ -251,9 +273,11 @@ const gameplay = (() => {
           return indexes;
         }, []);
       };
-      
+    
+    // value for normal difficulty to switch moves type
     let wasSmart = true;
 
+    // function handling computer input
     const computerInput = (mark, cpuDif, playerType) => {
         console.log("difficulty is" + cpuDif);
         return new Promise((resolve, reject) => {
@@ -262,6 +286,7 @@ const gameplay = (() => {
             }
             const emptyCells = getEmptyCells(board);
 
+            // function to make computer move
             const makeMove = (index, mark, arr) => {
                 if (arr[index] === ' ') {
                 arr[index] = mark;
@@ -270,36 +295,34 @@ const gameplay = (() => {
                 return false;
             };
 
+            // calculate silly move index
             const moveSilly = () => {
-                console.log('make silly move');
                 return emptyCells[Math.floor(Math.random() * emptyCells.length)];
             }
 
+            // calculate smart move index
             const moveSmart = () => {
+                // check if there avaible move to make to win
                 for (let i = 0; i < emptyCells.length; i++) {
                     let boardCopy = [...board];
                     let index = emptyCells[i];
                     if (makeMove(index, mark, boardCopy)) {
                         if (checkWinningConditions(boardCopy, mark)) {
-                            console.log('found my smart')
                             return index;
-                        } else {
-                            console.log('not found my smart');
                         }
                     }
                 }
 
+                // toggle mark for opponents one
                 const opponentMark = mark === 'x' ? 'o' : 'x';
 
+                // check if there any winning moves for opponent to block them
                 for (let i = 0; i < emptyCells.length; i++) {
                     let boardCopy = [...board];
                     let index = emptyCells[i];
                     if (makeMove(index, opponentMark, boardCopy)) {
                         if (checkWinningConditions(boardCopy, opponentMark)) {
-                            console.log('found opponents smart')
                             return index;
-                        } else {
-                            console.log('not found opponents smart')
                         }
                     }
                 }
@@ -307,6 +330,7 @@ const gameplay = (() => {
                 return moveSilly();
             };
 
+            // choose tactics according to difficulty
             switch (cpuDif) {
                 case 'easy':
                     index = moveSilly();
@@ -336,6 +360,7 @@ const gameplay = (() => {
         });
     };
 
+    // function to handle human input
     const humanInput = (mark, playerType) => {
         return new Promise((resolve, reject) => {
             const clickHandler = (event) => {
@@ -367,6 +392,7 @@ const gameplay = (() => {
         });
     };
 
+    // winning conditions check
     const checkWinningConditions = (arr, mark) => {
         // Winning patterns to check
         const winningPatterns = [
@@ -391,6 +417,7 @@ const gameplay = (() => {
         return false;
     };
 
+    // function handling endgame screen and 'play again' button
     const endGame = () => {
         display.show(endScreen);
         reButton.addEventListener('click', () => {
@@ -398,6 +425,7 @@ const gameplay = (() => {
         });
     }
 
+    // handling turn
     const handleTurn = (currentPlayer) => {
         const mark = currentPlayer.getMark();
         const playerType = currentPlayer.getType();
@@ -419,9 +447,7 @@ const gameplay = (() => {
                 endGame();
                 return;
             } else {
-                console.log('going to next turn')
                 currentPlayer = currentPlayer === playerX ? playerO : playerX;
-                console.log('player swiched to' + {currentPlayer})
                 handleTurn(currentPlayer);
             }
         }
@@ -443,6 +469,7 @@ const gameplay = (() => {
         .then(() => endTurn());     
     };
 
+    // handles game statrt
     const runGame = () => {
         display.refresh();
         display.hide(startButton);
@@ -456,6 +483,7 @@ const gameplay = (() => {
             })
     };
 
+    // public methods
     return {
         board,
         runGame
